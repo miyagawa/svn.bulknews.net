@@ -1,0 +1,62 @@
+#!perl
+
+use strict;
+use Getopt::Long;
+use Net::YahooMessenger;
+use Net::YahooMessenger::IRCGW;
+
+use vars qw($VERSION);
+$VERSION = 0.05;
+
+# default
+my %conf = (
+    login_id   => '',
+    password   => '',
+    irc_server => 'localhost',
+    irc_port   => 6667,
+    irc_nick   => 'msger',
+    irc_yournick => $ENV{USER},
+);
+GetOptions(
+    \%conf, map "$_=s", keys %conf,
+);
+
+my $gateway = Net::YahooMessenger::IRCGW->instance(\%conf);
+$gateway->start;
+
+__END__
+
+=head1 NAME
+
+irc-yahoo - IRC/Yahoo! Messenger gateway bot
+
+=head1 SYNOPSIS
+
+  irc-yahoo \
+     --login_id=[YM login id] \
+     --password=[YM password] \
+     --irc_server=[IRC server:localhost] \
+     --irc_port=[IRC port:6667] \
+     --irc_nick=[IRC nick for YM bot:msger] \
+     --irc_yournick=[your IRC nick:$ENV{USER}]
+
+=head1 DESCRIPTION
+
+See http://ymca.infoware.ne.jp/?browse=IrcToYahooMessenger for details
+
+=head1 AUTHOR
+
+Tatsuhiko Miyagawa E<lt>miyagawa@bulknews.netE<gt>
+
+This script is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 CAVEAT
+
+This script is in B<ALPHA STABILITY>. Use at your own risk!
+
+=head1 SEE ALSO
+
+L<Net::YahooMessenger>, L<Net::IRC>, http://ymca.infoware.ne.jp/
+
+=cut

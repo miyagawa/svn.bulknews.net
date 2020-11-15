@@ -1,0 +1,7 @@
+[% INCLUDE head.tt %]
+
+<p>このサービスは終了しました。</p>
+
+<a href="http://www.flickr.com/photos/bulknews/121261382/" title="Photo Sharing"><img src="http://static.flickr.com/36/121261382_c0e76dafc6.jpg" width="500" height="375" alt="IMG_4859" border="0" /></a>
+
+[% INCLUDE footer.tt %]

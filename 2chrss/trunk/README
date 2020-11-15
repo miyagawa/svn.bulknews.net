@@ -1,0 +1,21 @@
+NAME
+    2chrss - 2ch RSS generator
+
+SYNOPSIS
+      2chrss [--charset=CHARSET] [--num=NUM] board > board.rdf
+
+DESCRIPTION
+    This script gets 2ch subback.html and geenrates RSS from it.
+
+AUTHOR
+    Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+
+SEE ALSO
+    LWP, Jcode, XML::RSS
+
+COPYRIGHT
+     2chrss is Copyright (c) 2002, by Tatsuhiko Miyagawa
+     All rights reserved. You may distribute this code under the terms
+     of either the GNU General Public License or the Artistic License,
+     as specified in the Perl README file.
+

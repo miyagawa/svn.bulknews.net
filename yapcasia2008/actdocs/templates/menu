@@ -1,0 +1,8 @@
+<ul id="navigation">
+    [% PROCESS menus/about %]
+    [% PROCESS menus/news %]
+    [% PROCESS menus/talks %]
+    [% PROCESS menus/location %]
+    [% PROCESS menus/faq %]
+    [% PROCESS menus/wiki %]
+</ul>

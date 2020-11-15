@@ -1,0 +1,28 @@
+NAME
+    ttdiff - find difference between structures of two TT templates
+
+SYNOPSIS
+      ttdiff file1 file2
+
+DESCRIPTION
+    "ttdiff" is a command line tool to find structured difference between
+    two TT templates. It may be quite useful for checking before your
+    co-working designer fixes up your bare-bone template into production
+    ready design. What you should check is just run "ttdiff" against your
+    template and the final template to see any typos or losing in migration
+    are there.
+
+PREREQUISTICS
+    *   Template-Toolkit 2.07
+
+    *   Text::Diff 0.32
+
+AUTHOR
+    Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+SEE ALSO
+    the Template manpage, the Text::Diff manpage
+

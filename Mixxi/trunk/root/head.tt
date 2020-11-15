@@ -1,0 +1,24 @@
+<html>
+<head>
+[% IF meta_refresh -%]
+<meta http-equiv="Refresh" content="10;URL=[% meta_refresh | html %]" />
+[% END -%]
+<title>mixxi.jp: tinyURL for mixi.jp</title>
+<style type="text/css">
+h1,h2 { font-size: 2em }
+h3 { font-size: 1.5em }
+body,input { font-size: 12px; font-family: trebuchet MS }
+input { background: #fff }
+.description { }
+.description .url {}
+.error { color: #f00 }
+.note { margin-top: 5em; font-size: 10px }
+ul { margin-left: 1em; list-style-type: none; margin-top: 0 }
+#hint { margin-top: 3em }
+</style>
+[% IF dojo -%]
+<script src="[% c.uri_for('/static/dojo/dojo.js') %]"></script>
+[% END -%]
+</head>
+<body>
+<h1>mixxi.jp: tinyURL for mixi.jp</h1>

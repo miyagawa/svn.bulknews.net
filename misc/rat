@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+require 'chronic'
+
+class AtTask
+  def initialize(*args)
+    @when = args.join ' '
+    date = Chronic.parse(@when)
+    unless date
+      raise "Could not parse #{@when}"
+    end
+  end
+
+  def run
+    command = STDIN.read
+    # reparse, since typing command would take time
+    date = Chronic.parse(@when)
+    sec = (date - Time.now).to_i
+    pid = spawn 'bash', '-c', "sleep #{sec}; #{command}"
+    puts "scheduled #{pid} on #{date}"
+  end
+end
+
+AtTask.new(*ARGV).run

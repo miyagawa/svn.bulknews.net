@@ -1,0 +1,58 @@
+NAME
+    mt-ymstatus - your Yahoo! Messenger status on MT
+
+SYNOPSIS
+      <MTYMStatus id="tracker_id" password="blahblah"
+         target="your_real_id" hostname="cs.yahoo.co.jp">
+      YM status for <$MTYMBuddyName$>: 
+      <MTYMIfOnline>online
+      <MTYMIfCustomStatus> - <$MTYMStatusMessage$></MTYMIfCustomStatus>
+      </MTYMIfOnline>
+      <MTYMIfOffline>offline</MTYMIfOffline>
+      </MTYMStatus>
+
+    Note that hostname attribute is for .yahoo.co.jp, so you don't need it
+    if you use .yahoo.com service.
+
+DESCRIPTION
+    "mt-ymstatus" is a MT plugin which allows you to publish your Yahoo!
+    Messenger status (including custom message) on MovableType Blogs.
+
+    Note that you need another Yahoo! Messenger account (indicated as
+    *tracker_id* in synopsis) than yours (*target*) to get your YM status.
+
+TAGS
+    MTYMStatus
+        container tag to generate ymstatus content.
+
+    MTYMIfOnline, MTYMIfOffline
+        conditional container tag to show if you're online or offline.
+
+    MTYMIfCustomStatus
+        conditional container tag to show if you use custom status or not.
+
+    MTYMIfAvailable, MTYMIfBusy, MTYMIfSleep
+        conditional container tag to show your status.
+
+    MTYMStatusMessage
+        your YM status message, including custom status.
+
+    MTYMBuddyName
+        your YM account.
+
+REQUIREMENTS
+    This plugin requires following CPAN modules installed.
+
+    *   Net::YahooMessenger
+
+    If you use this plugin in Japanese blogs, you need "mt-jcode" to convert
+    character encoding at:
+
+    http://bulknews.net/lib/archives/
+
+AUTHOR
+    Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+
+SEE ALSO
+    the Net::YahooMessenger manpage, "mt-jcode", the MT manpage
+

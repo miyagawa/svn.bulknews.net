@@ -1,0 +1,41 @@
+NAME
+    Inline::TT - use TT BLOCK as your Perl sub
+
+SYNOPSIS
+      use Inline 'TT';
+
+      print add(args => [ 0, 1 ]);                      # 1
+      print rubyish(str => "Just another Perl Hacker"); # "Just/another/Ruby/hacker"
+
+      __END__
+      __TT__
+      [% BLOCK add %]
+      [% result = 0 %]
+      [% FOREACH arg = args %]
+        [% result = result + arg %]
+      [% END %]
+      [% result %]
+      [% END %]
+
+      [% BLOCK rubyish %]
+      [% strings = str.split(' ')
+         strings.2 = "Ruby"
+      %]
+      [% strings.join('/') %]
+      [% END %]
+
+DESCRIPTION
+    Template-Toolkit is not just a Templating Engine. It's a language. Yep,
+    Inline::TT is a Inline plugin to allow you to code your Perl subs in TT.
+
+AUTHOR
+    Original idea by IKEBE Tomohiro <ikechin@0xfa.com>
+
+    Code implemented by Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+SEE ALSO
+    the Template manpage, the Inline manpage
+

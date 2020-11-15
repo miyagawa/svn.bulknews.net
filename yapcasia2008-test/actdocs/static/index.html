@@ -1,0 +1,73 @@
+[% WRAPPER ui %]
+
+<div class="banner">
+<img alt="YAPC::Asia 2008 - May 15-16th Tokyo, Japan" src="/ya2008/css/themes/ya2008/images/banner.png" width="700" height="300" />
+<span class="copyright">photo by  <a href="http://www.flickr.com/photos/typester/">typester</a> -
+<t>
+<en><a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons License by-sa</a></en>
+<ja><a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.ja">Creative Commons License by-sa</a></ja>
+</t>
+</span>
+</div>
+
+<h2 class="page-title">
+<t>
+<en>Welcome</en>
+<ja>ようこそ</ja>
+</t>
+</h2>
+
+<p>
+<t>
+<en>YAPC::Asia 2008 will happen May 15-16, 2008 in Tokyo, JAPAN. The venue will be <a href="[% make_uri('location.html') %]">Tokyo Institute of Technology</a>.</en>
+<ja>YAPC::Asia 2008 を 2008/05/15-16 に<a href="[% make_uri('location.html') %]">東京工業大学大岡山キャンパス</a>で開催します。</ja>
+</t>
+</p>
+
+[% PROCESS menus/connected %]
+
+<p>
+<t>
+<en>For the latest updates and communication, we have <a href="http://feeds.feedburner.com/YapcAsia">news feed</a>, <a href="http://twitter.com/yapcasia">Twitter stream</a> and <a href="http://www.facebook.com/event.php?eid=21043164424">Facebook event page</a>. You don't need to double register on this site and Facebook, but it'll help people know each other more!</en>
+<ja>最新情報や参加者同士のコミュニケーション用に、<a href="http://feeds.feedburner.com/YapcAsiaJa">ニュースフィード</a>, <a href="http://twitter.com/yapcasia">Twitter</a>, <a href="http://www.facebook.com/event.php?eid=21043164424">Facebook イベントページ</a> を用意してあります。(Facebook での参加者登録は任意です)</ja>
+</t>
+</p>
+
+<p>
+<t>
+<en>
+We're working on redesigning the site as well as localizint the UI and content into Japanese as well. The final version of the site will be available around March 1st, when we can announce the sessions schedule and our sponsors.</en>
+<ja>サイトのデザインや UI の日本語化は現在作業を行っていますので、事前登録の名前などは英語を利用して登録してください。日本語化作業などの完了は 3/1 前後を予定しており、そのタイミングでセッションやスポンサーなども同時にアナウンスできる予定です。</ja>
+</t>
+</p>
+
+[% news = global.news(3);
+   IF news.size > 2;
+     more = news.pop;
+   END;
+ %]
+
+[% IF news.size %]
+[% FOREACH n = news %]
+<div class="section entry hentry">
+    <h3 class="entry-title"><a href="[% n.link %]" rel="bookmark">[% n.title %]</a></h3>
+    <ul class="meta">
+        <li class="datetime">[% date_format(n.datetime, "date_full") %]</li>
+        <li>{{by}} [% user_info(n.user) %]</li>
+    </ul>
+    <div class="entry-content">
+        [% n.content %]
+    </div>
+</div>
+[% END %]
+[% END %]
+[% IF more %]
+<p>
+<t>
+<en> <a href="[% make_uri('news') %]" class="news-link">Older announcements</a></en>
+<ja> <a href="[% make_uri('news') %]" class="news-link">過去のニュースをみる</a></ja>
+</t>
+</p>
+[% END %]
+
+[% END %]

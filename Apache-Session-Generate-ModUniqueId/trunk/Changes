@@ -1,0 +1,8 @@
+Revision history for Perl extension Apache::Session::Generate::ModUniqueId.
+
+0.02  Fri Oct 12 10:37:32 JST 2001
+	- Fixed syntax error
+
+0.01  Wed Oct 10 23:50:03 2001
+	- original version; created by h2xs 1.19
+

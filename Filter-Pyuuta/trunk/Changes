@@ -1,0 +1,10 @@
+Revision history for Perl extension Filter::Pyuuta.
+
+0.01  Sat Oct  6 07:59:03 2001
+	* complete rewrite using Filter::Simple
+	* added "our" support! (only works in 5.6.x)
+	* added "do" (する)
+	* changed "やり直し" (redo)
+	- added test suite (needs Test::Simple)
+	- original version; created by h2xs 1.19
+

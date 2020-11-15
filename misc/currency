@@ -1,0 +1,55 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use Getopt::Long;
+use Finance::Currency::Convert::Yahoo;
+use Number::Format;
+use Pod::Usage;
+
+my $from;
+my $to   = "JPY";
+GetOptions('help|?' => \my $help, '--to=s', \$to, '--from=s', \$from);
+pod2usage(1) if $help;
+
+push @ARGV, $from if $from; # --from JPY 100 = 100 JPY
+
+no warnings 'uninitialized';
+my $stuff = join ' ', @ARGV;
+my($quant, $currency) = split /\s+/, $stuff;
+if ($quant =~ /^\w{3}$/ && $currency =~ /^[\d\,\.]*$/) {
+    ($quant, $currency) = ($currency, $quant);
+    $quant ||= 1;
+}
+
+if ($currency !~ /^\w{3}$/) {
+    pod2usage("Unknown currency: $currency\n");
+}
+
+$quant =~ tr/,//d;
+
+$currency = uc($currency);
+$to       = uc($to);
+
+if ($currency eq $to && $currency eq 'JPY') {
+    $to = "USD";
+}
+
+my $how = Finance::Currency::Convert::Yahoo::convert($quant, $currency, $to) or exit;
+print comma($quant), " $currency = ", comma($how), " $to\n";
+
+sub comma {
+    Number::Format->new->format_number($_[0]);
+}
+
+__END__
+
+=head1 NAME
+
+currency - Convert currency from one to another
+
+=head1 SYNOPSIS
+
+  currency 100 USD
+  currency -t GBP 1000 THB
+
+=cut

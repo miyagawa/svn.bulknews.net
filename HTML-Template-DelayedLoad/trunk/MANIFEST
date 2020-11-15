@@ -1,0 +1,11 @@
+Changes
+MANIFEST
+Makefile.PL
+lib/HTML/Template/DelayedLoad.pm
+t/00_compile.t
+t/01_new.t
+t/02_param.t
+t/03_filename.t
+t/04_options.t
+t/test.html
+t/test1.html

@@ -1,0 +1,246 @@
+#!/usr/local/bin/perl
+
+use strict;
+
+use vars qw($VERSION);
+$VERSION = '0.01';
+
+use strict;
+use FileHandle;
+
+package ProcMailToMHPopper;
+use Digest::MD5 qw(md5_hex);
+
+sub new {
+    my($class, $out, $in, $maildir, $crypt) = @_;
+    bless {
+	inhandle => $in,
+	outhandle => $out,
+	maildir => $maildir,
+	crypted => $crypt,
+	mails => [],
+    }, $class;
+}
+
+sub mail_count {
+    my $self = shift;
+    return scalar @{$self->{mails}};
+}
+
+sub mail {
+    my($self, $i) = @_;
+    return $self->{mails}->[$i - 1];
+}
+
+sub size {
+    my($self, $i) = @_;
+    return $self->mail($i)->{size};
+}
+
+sub handle {
+    my($self, $i) = @_;
+    return FileHandle->new($self->mail($i)->{path});
+}
+
+sub retrieve {
+    my($self, $i) = @_;
+    $self->out("+OK\r\n");
+    my $handle = $self->handle($i) or die;
+    while (defined ($_ = $handle->getline)) {
+	s/\n/\r\n/g;
+	$self->out($_);
+    }
+    $self->out(".\r\n");
+}
+
+sub top {
+    my($self, $i, $line) = @_;
+    $self->out("+OK\r\n");
+    my $handle = $self->handle($i) or die;
+
+    # header
+    my $header = do { local $/ = "\n\n"; <$handle> };
+    $header =~ s/\n/\r\n/g;
+    $self->out($header);
+
+    my $outline = 0;
+    while (defined ($_ = $handle->getline)) {
+	last if ++$outline > $line;
+	s/\n/\r\n/g;
+	$self->out($_);
+    }
+    $self->out("\r\n.\r\n");
+}
+
+sub authorized { shift->{authorized} }
+sub crypted    { shift->{crypted} }
+sub maildir    { shift->{maildir} }
+
+sub in {
+    my $self = shift;
+    return wantarray ? $self->{inhandle}->getlines : $self->{inhandle}->getline;
+}
+
+sub out {
+    my $self = shift;
+    $self->{outhandle}->print(@_);
+}
+
+sub init_session {
+    my $self = shift;
+    $self->out("+OK\r\n");
+}
+
+sub parse_mailinfo {
+    my($self, $logfile) = @_;
+    my $log = FileHandle->new($logfile) or return; # no new mail
+    my @mails;
+    while (<$log>) {
+	/^  Folder: (\S*)/ and push @mails, $self->mailinfo($1);
+    }
+    $self->{mails} = \@mails;
+}
+
+sub mailinfo {
+    my($self, $file) = @_;
+    unless (substr($file, 0, 1) eq '/') {
+	# default: full path
+	$file =  join('/', $self->maildir, $file);
+    }
+    return {
+	path => $file, size => -s $file,
+    };
+}
+
+sub stat {
+    my $self = shift;
+    my $count = $self->mail_count;
+    my $size = 0;
+    $size += $self->size($_) for 1..$self->mail_count;
+    $self->out("+OK $count $size\r\n");
+}
+
+sub uidl {
+    my $self = shift;
+    $self->out("+OK\r\n");
+    for my $i (1 .. $self->mail_count) {
+	my $uidl = $self->_mail_uidl($i);
+	$self->out("$i $uidl\r\n");
+    }
+    $self->out(".\r\n");
+}
+
+sub _mail_uidl {
+    my($self, $i) = @_;
+    my $path = $self->mail($i)->{path};
+    return md5_hex $path;
+}
+
+sub quit {
+    my $self = shift;
+    $self->out("+OK\r\n");
+}
+
+sub listing {
+    my($self, $i) = @_;
+    my $size = $self->size($i);
+    $self->out("+OK $i $size\r\n");
+}
+
+sub authorize_first {
+    my $self = shift;
+    $self->out("-ERR authorization first\r\n");
+}
+
+sub authorize {
+    my($self, $input) = @_;
+    if (crypt($input, $self->crypted) eq $self->crypted) {
+	$self->out("+OK\r\n");
+	$self->{authorized} = 1;
+	return 1;
+    }
+    else {
+	$self->out("-ERR authorization failed\r\n");
+	return;
+    }
+}
+
+sub start_session {
+    my $self = shift;
+    while (defined($_ = $self->in)) {
+	if (/^USER /i) {
+	    $self->out("+OK\r\n"); # ignore
+	}
+	elsif (/^PASS (\S*)/i) {
+	    $self->authorize($1) or die "auth failure";
+	}
+	elsif (/^QUIT/i) {
+	    $self->quit;
+	    last;
+	}
+	elsif (! $self->authorized) {
+	    $self->authorize_first;
+	}
+	elsif (/^STAT/i) {
+	    $self->stat;
+	}
+	elsif (/^LIST (\d+)/i) {
+	    $self->listing($1);
+	}
+	elsif (/^RETR (\d+)/i) {
+	    $self->retrieve($1);
+	}
+	elsif (/^TOP (\d+) (\d+)/i) {
+	    $self->top($1, $2);
+	}
+	elsif (/^UIDL/i) {
+	    $self->uidl;
+	}
+    }
+}
+
+package main;
+
+my $logfile = shift;
+my $maildir = shift;
+my $cryptpw = shift;
+
+$| = 1;
+
+my $popper = ProcMailToMHPopper->new(*STDOUT, *STDIN, $maildir, $cryptpw);
+$popper->init_session;
+$popper->parse_mailinfo($logfile);
+$popper->start_session;
+
+
+
+=pod
+
+=head1 NAME
+
+prompop - prom-wl pop3d
+
+=head1 SYNOPSIS
+
+  prompop ~/.procmail/log ~/Mail xxxxxx
+
+=head1 DESCRIPTION
+
+See http://bulknews.net/lib/utils/prompop/ for details.
+
+=head1 AUTHOR
+
+Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+
+=head1 SEE ALSO
+
+prom-wl
+
+=head1 COPYRIGHT
+
+ prompop is Copyright (c) 2002, by Tatsuhiko Miyagawa.
+ All rights reserved. You may distribute this code under the terms
+ of either the GNU General Public License or the Artistic License,
+ as specified in the Perl README file.
+
+=cut

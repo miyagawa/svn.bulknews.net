@@ -1,0 +1,86 @@
+NAME
+    Mail::Address::Classify - Mail address classification framework
+
+SYNOPSIS
+      use Mail::Address::Classify;
+
+      my $addr = Mail::Address::Classify->new('foo@example.com');
+      if ($addr->belongs('mobile_jp')) {
+          print "Address: ", $addr->address, " is mobile one in Japan";
+      }
+
+      # your own classification
+      package Mail::Address::Classify::mailer_daemon;
+
+      sub is_valid {
+          my($class, $addr) = @_;
+          return uc($addr->user) eq 'MAILER-DAEMON';
+      }
+
+      package main;
+      my $addr = Mail::Address::Classify->new('MAILER-DAEMON@example.com');
+      if ($addr->belongs('mailer_daemon')) {
+          print "Address: ", $addr->format, " is mailer-daemon";
+      }
+
+DESCRIPTION
+    Mail::Address::Classify is a (pluggable) lightweight framework for Email
+    address classification. It can be quite useful in cases like validating if
+    an address
+
+    o   is a free mail (on the web) or not
+
+    o   is a mobile (cellular) mail or not
+
+    Mail::Address::Classify is a simple framework, so it cannot be used
+    without any pluggable module for the calssification. Currently distributed
+    classification is `mobile_jp'.
+
+    I hope we will have more implementations soon. See the
+    Mail::Address::Classify::mobile_jp manpage and do search on CPAN for more
+    modules.
+
+METHODS
+    new $addr = Mail::Address::Classify->new('foo@example.com'); $addr =
+        Mail::Address::Classify->new('foo <foo@example.com>'); $addr =
+        Mail::Address::Classify->new( Mail::Address->new('foo',
+        'foo@example.com'), );
+
+        constructs Mail::Address::Classify instance.
+
+        Mail::Address::Classify delegates methods to Mail::Address, so you can
+        call any instance methods of Mail::Address on the object like:
+
+          my $output = $addr->format;
+
+    belongs
+          if ($addr->belongs('foo')) { }
+
+        Suppose you have Mail::Address::Classify::foo module, you can call
+        `belongs' method to Mail::Address::Classify instance with `foo'
+        argument. This will result in the method call
+
+          Mail::Address::Classify::foo->is_valid($addr);
+
+        where `$addr' is the object. So what you should do is define your own
+        `is_valid' class method:
+
+          package Mail::Address::Classify::foo;
+
+          sub is_valid {
+              my($class, $addr) = @_;
+              # do some stuff, and returns if $addr belongs to 'foo'
+          }
+
+        XXX should I name this method `belongs_to'?
+
+AUTHOR
+        Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+
+        This library is free software; you can redistribute it and/or modify
+        it under the same terms as Perl itself.
+
+SEE ALSO
+        the Mail::Address manpage, the Mail::Address::Classify::mobile_jp
+        manpage
+

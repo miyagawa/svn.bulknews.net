@@ -1,0 +1,28 @@
+NAME
+    htdiff - find difference between structures of two HTML templates
+
+SYNOPSIS
+      htdiff file1 file2
+
+DESCRIPTION
+    "htdiff" is a command line tool to find structured difference between
+    two HTML::Template templates. It may be quite useful for checking before
+    your co-working designer fixes up your bare-bone template into
+    production ready design. What you should check is just run "htdiff"
+    against your template and the final template to see any typos or losing
+    in migration are there.
+
+PREREQUISTICS
+    *   HTML::Template 2.5
+
+    *   Text::Diff 0.32
+
+AUTHOR
+    Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+SEE ALSO
+    the HTML::Template manpage, the Text::Diff manpage
+

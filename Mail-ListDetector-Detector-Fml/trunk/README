@@ -1,0 +1,28 @@
+NAME
+    Mail::ListDetector::Detector::Fml - FML message detector
+
+SYNOPSIS
+      use Mail::ListDetector::Detector::Fml;
+
+DESCRIPTION
+    Mail::ListDetector::Detector::Fml is an implementation of a mailing list
+    detector, for FML. See http://www.fml.org/ for details about FML.
+
+    When used, this module installs itself to Mail::ListDetector. FML maling
+    list message is RFC2369 compliant, so can be matched with RFC2369
+    detector, but this module allows you to parse more FML specific
+    information about the mailing list.
+
+METHODS
+    new, match
+        Inherited from the Mail::ListDetector::Detector::Base manpage
+
+AUTHOR
+    Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+SEE ALSO
+    the Mail::ListDetector manpage
+

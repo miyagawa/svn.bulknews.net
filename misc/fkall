@@ -1,0 +1,79 @@
+#!/usr/bin/env perl
+use strict;
+
+sub confirm {
+    my($msg, $text) = @_;
+    my $cd = "/Applications/CocoaDialog.app/Contents/MacOS/CocoaDialog";
+    if (-e $cd) {
+        require String::ShellQuote;
+        $msg  = String::ShellQuote::shell_quote $msg;
+        $text = String::ShellQuote::shell_quote $text;
+        my $rv = `$cd yesno-msgbox --no-cancel --text $msg --informative-text $text`;
+        return $rv == 1;
+    } else {
+        require Term::ReadKey;
+        print STDERR "$msg [Y/n] ";
+        my $k = Term::ReadKey::ReadKey(0);
+        return uc($k) ne 'N';
+    }
+}
+
+sub notify {
+    my $msg = shift;
+
+    if (grep -e "$_/growlnotify", split /:/, $ENV{PATH}) {
+        system("growlnotify", "-t", "fkall", "-m", $msg);
+    } else {
+        warn $msg, "\n";
+    }
+}
+
+sub get_procs {
+    my @procs = split /\n/, qx/ps cuxww/;
+    my @headers = split /\s+/, shift @procs;
+    map {
+        my %data;
+        @data{@headers} = split /\s+/, $_, 11;
+        \%data;
+    } @procs;
+}
+
+my $app = shift || 100;
+my $confirm_kill;
+my @apps;
+if ($app =~ /^\d+$/) {
+    $confirm_kill = 1;
+    my @procs = get_procs();
+    for my $proc (@procs) {
+        push @apps, $proc->{COMMAND} if $proc->{RSS} > 1024 * $app;
+    }
+} else {
+    @apps = ($app);
+}
+
+exit unless @apps;
+
+if ($confirm_kill) {
+    if (!confirm("Killing following app(s): " . join(", ", @apps), "These apps use more than ${app}M memory")) {
+        exit;
+    }
+}
+
+for my $app (@apps) {
+    system "killall", $app;
+}
+
+sleep 1;
+
+my %live_apps = map { $_->{COMMAND} => 1 } get_procs;
+my @force_kill_apps = grep $live_apps{$_}, @apps;
+
+for my $kill_app (@force_kill_apps) {
+    notify("force killing $kill_app");
+    system "killall", "-KILL", $app;
+}
+
+for my $app (@apps) {
+    system "open", "-a", $app;
+    notify("$app relaunched");
+}

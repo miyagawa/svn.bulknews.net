@@ -1,0 +1,7 @@
+Revision history for Perl extension Template::Plugin::Properties
+
+0.02  Thu Aug 22 14:26:22 JST 2002
+	* Added (undocumented) parse method
+
+0.01  Thu Aug 15 21:51:58 2002
+	- original version

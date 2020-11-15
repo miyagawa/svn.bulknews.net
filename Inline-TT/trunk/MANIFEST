@@ -1,0 +1,8 @@
+Changes
+MANIFEST
+Makefile.PL
+lib/Inline/TT.pm
+t/00_compile.t
+t/01_add.t
+t/02_rubyish.t
+README

@@ -1,0 +1,5 @@
+Changes for tb-link-lookup
+
+0.10 2005.10.01
+     - Renamed plugin to TBPingLinkLookup
+     * Now uses MT 3.2 Junk Filter API

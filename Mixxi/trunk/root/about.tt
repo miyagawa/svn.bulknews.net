@@ -1,0 +1,24 @@
+[% INCLUDE head.tt meta_refresh = url.url %]
+
+<p>Redirecting in <span id="timer">10</span> seconds. <img src="[% c.uri_for('/static/images/') %]spinner_mac.gif" style="valign:middle" /></p>
+
+<p>
+Long URL: [% url.url | html %]<br />
+Short URL: <a href="[% c.uri_for('/') %][% url.canon_path | html %]">[% c.uri_for('/') %][% url.canon_path | html %]</a></p>
+
+<p>[% SET qr = c.uri_for('/qr/') _ url.canon_path -%]
+<a href="[% qr | html %]"><img src="[% qr | html %]" style="border:0" /></a></p>
+
+<script language="JavaScript">
+var timer = 10;
+setTimeout(countDown, 1000);
+function countDown() {
+  timer = timer - 1;
+  if (timer <= 0) return;
+  document.getElementById('timer').innerHTML = timer;
+  setTimeout(countDown, 1000);
+}
+</script>
+
+
+[% INCLUDE footer.tt %]

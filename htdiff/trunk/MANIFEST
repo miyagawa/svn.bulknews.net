@@ -1,0 +1,8 @@
+Changes
+MANIFEST
+Makefile.PL
+htdiff
+t/00_htdiff.t
+t/bar.html
+t/baz.html
+t/foo.html

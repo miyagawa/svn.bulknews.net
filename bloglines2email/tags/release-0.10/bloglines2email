@@ -1,0 +1,260 @@
+#!/usr/local/bin/perl -w
+# $Id: bloglines2email 1650 2005-09-08 20:16:24Z miyagawa $
+use strict;
+use DateTime;
+use DateTime::Format::Mail;
+use Encode;
+use FindBin;
+use File::Spec;
+use Getopt::Long;
+use MIME::Lite;
+use Template;
+use WebService::Bloglines;
+use YAML;
+
+our $VERSION = '0.10';
+
+GetOptions(\our %opt, "test", "verbose", "conf=s");
+
+my $conf = $opt{conf} || File::Spec->catfile($FindBin::Bin, "bloglines2email.conf");
+my $cfg  = YAML::LoadFile($conf);
+
+my $bws = WebService::Bloglines->new(
+    username => $cfg->{username},
+    password => $cfg->{password},
+);
+
+setup_mailroute($cfg);
+
+my $mark_read = $opt{test} ? 0 : 1;
+my @updates = $bws->getitems(0, $mark_read);
+debug(scalar(@updates) . " feeds updated.");
+for my $update (@updates) {
+    send_email($cfg, $update);
+}
+
+sub setup_mailroute {
+    my $cfg = shift;
+    my $route = $cfg->{mailroute} || { via => 'smtp', host => 'localhost' };
+    my @args  = $route->{host} ? ($route->{host}) : ();
+    MIME::Lite->send($route->{via}, @args);
+}
+
+sub debug {
+    my $msg = "@_";
+    chomp($msg);
+    print STDERR encode('utf-8', "$msg\n") if $opt{verbose};
+}
+
+sub send_email {
+    my($cfg, $update) = @_;
+    my $feed  = $update->feed;
+    my @items = $update->items;
+    if ($cfg->{'group-items'}) {
+        send_email_feed($cfg, $feed, \@items);
+    }
+    else {
+        for my $item (@items) {
+            send_email_item($cfg, $feed, $item);
+        }
+    }
+}
+
+sub send_email_feed {
+    my($cfg, $feed, $items) = @_;
+    my $subject = $feed->{title} || '(no-title)';
+    my $body = join '<hr />', map format_body($feed, $_, $cfg), @$items;
+    do_send_mail($cfg, $feed, $subject, $body);
+}
+
+sub send_email_item {
+    my($cfg, $feed, $item) = @_;
+    my $subject = $item->{title} || '(no-title)';
+    my $body    = format_body($feed, $item, $cfg);
+    do_send_email($cfg, $feed, $subject, $body);
+}
+
+sub do_send_mail {
+    my($cfg, $feed, $subject, $body) = @_;
+    debug("Sending $subject to $cfg->{mailto}");
+    my $feed_title = $feed->{title};
+       $feed_title =~ tr/,//d;
+    my $msg = MIME::Lite->new(
+        Date => get_rfc2822_date($cfg),
+        From => encode('MIME-Header', qq("$feed_title" <$cfg->{mailfrom}>)),
+        To   => $cfg->{mailto},
+        Subject => encode('MIME-Header', $subject),
+        Type => 'multipart/related',
+    );
+    $msg->attach(
+        Type => 'text/html; charset=utf-8',
+        Data => encode("utf-8", $body),
+    );
+    $msg->send("smtp", "localhost", Timeout => 60)
+}
+
+sub get_rfc2822_date {
+    my $cfg = shift;
+    my $dt  = @_
+        ? DateTime::Format::Mail->parse_datetime($_[0])
+        : DateTime->now;
+    my $tz = $cfg->{'date-timezone'} || 'local';
+    $dt->set_time_zone($tz);
+    DateTime::Format::Mail->format_datetime($dt);
+}
+
+sub format_body {
+    my($feed, $item, $cfg) = @_;
+    my $template = get_template();
+    my $tt = Template->new;
+    $tt->process(\$template, {
+        feed => $feed,
+        item => $item,
+        cfg  => $cfg,
+        get_rfc2822_date => sub { get_rfc2822_date($cfg, @_) },
+    }, \my $out);
+    $out;
+}
+
+sub get_template {
+    return <<'HTML';
+<div>
+<div>
+[% IF feed.image %]<a href="[% feed.image.link %]"><img style="border:0" align="right" src="[% feed.image.url | html %]" alt="[% feed.image.title | html %]" /></a>[% END %]
+[% var = 'group-items'; IF cfg.$var %]<strong style="font-weight:bold;font-size:1.2em">[% item.title %]</strong><br />[% END %]
+[% SET link = item.link || item.guid -%]
+Link: <a href="[% link | html %]">[% link | html %]</a><br />
+[% IF item.dc.creator %]by [% item.dc.creator | html %][% END %][% IF item.dc.subject %] on [% item.dc.subject %][% END %]</div>
+[% IF item.description -%]
+[% IF item.description.match('(?i)^<p[ >]') %][% item.description %][% ELSE %]<div style="padding: 1em 0">[% item.description %]</div>[% END %]
+[% ELSE %]<br />[% END %]
+<div style="font-size:0.8em">[% IF item.pubDate %]Posted on [% get_rfc2822_date(item.pubDate) %][% END %] | <a href="[% link | html %]">permalink</a> | <a href="[% feed.link | html %]">[% feed.title | html %]</a>[% var = 'delicious-username'; IF cfg.$var %] | <a href="http://del.icio.us/[% cfg.$var %]?v=3&amp;url=[% item.link | html %]&amp;title=[% item.title | html %]">Post to del.icio.us</a>[% END %]<br clear="all" /></div>
+</div>
+HTML
+}
+
+=head1 NAME
+
+bloglines2email - Send Bloglines unread items as HTML mail
+
+=head1 SYNOPSIS
+
+  % bloglines2email
+  % bloglines2email --conf=/path/to/bloglines2email.conf --test --verbose
+
+=head1 DESCRIPTION
+
+C<bloglines2email> is a command line application that fetches
+Bloglines unread items via Bloglines Web Services and sends them as
+HTML mail to your address (Gmail is preferrable). It gives you an easy
+way to manage, browse and search Blog entries rather than using
+Bloglines interface directly.
+
+You'd better run this app by crontab like every 5 minutes.
+
+=head1 REQUIREMENT
+
+This app requires perl 5.8.0 with following Perl modules installed on your box.
+
+=over 4
+
+=item DateTime
+
+=item DateTime::Format::Mail
+
+=item MIME::Lite
+
+=item Template
+
+=item WebService::Bloglines
+
+=item YAML
+
+=back
+
+=head1 OPTIONS
+
+This application has following command line options.
+
+=over 4
+
+=item --test
+
+Doesn't mark unread items as read. Default: mark read.
+
+=item --verbose
+
+Gives diagnostic messages to STDERR. Default: no verbose.
+
+=item --conf
+
+Specifies a path of configuration YAML file. Default:
+C<bloglines2email.conf> in the same directory as script.
+
+=back
+
+=head1 CONFIGURATION
+
+This app uses C<bloglines2email.conf> that sits beside the script in
+the same directory (or you can specify the file path using C<--conf>
+option). The distribution has a sample configuration file named
+C<bloglines2email.conf.sample> that you can use by copying.
+
+The config file uses YAML syntax and most of the directives are self-discriptive.
+
+=over 4
+
+=item username, password
+
+Set your username and password for Bloglines.
+
+=item mailto
+
+Set email address that this app sends emails to. Gmail address is recommended.
+
+=item mailfrom
+
+Set email address that this app uses for C<From:> header.
+
+=item mailroute
+
+Set how to send emails. Default is to use SMTP.
+
+=item group-items (Optional)
+
+With this directive on (set to 1), C<bloglines2email> groups updated
+items per feed. That reduces a volume of emails sent, and enables a
+better user experience with Gmail, thanks to the conversation
+threading based on C<Subject> header. Strongly recommended.
+
+=item date-timezone (Optional)
+
+Sets Date timezone for outgoing email C<Date:> header and I<Posted on>
+phrase inside email body. Default is to use local timezone on your machine.
+
+=item delicious-username (Optional)
+
+Sets your del.icio.us username. With this option set, the email body
+will have I<Post to del.icio.us> link, which is a handy shortcut for
+bookmarking items to the social bookmarking service.
+
+=head1 DEVELOPMENT
+
+The newest version is always available via subversion:
+
+  svn://svn.bulknews.net/public/bloglines2email/trunk
+
+And you can browse the files via ViewCVS at:
+
+  http://svn.bulknews.net/viewcvs/public/bloglines2email/trunk
+
+Feel free to send patches or suggestions to E<lt>miyagawa@bulknews.netE<gt>
+
+=head1 AUTHOR
+
+Tatsuhiko Miyagawa E<lt>miyagawa@bulknews.netE<gt>
+
+This script is free software and licensed under the same terms as Perl
+(Artistic/GPL).
+
+=cut

@@ -1,0 +1,209 @@
+#!/usr/local/bin/perl
+use strict;
+use vars qw($VERSION);
+$VERSION = 0.03;
+
+=head1 NAME
+
+htdiff - find difference between structures of two HTML templates
+
+=head1 SYNOPSIS
+
+  htdiff file1 file2
+  htdiff --dump file
+
+=head1 DESCRIPTION
+
+C<htdiff> is a command line tool to find structured difference between
+two HTML::Template templates. It may be quite useful for checking
+before your co-working designer fixes up your bare-bone template into
+production ready design. What you should check is just run C<htdiff>
+against your template and the final template to see any typos or
+losing in migration are there.
+
+=head1 PREREQUISTICS
+
+=over 4
+
+=item *
+
+HTML::Template 2.5
+
+=item *
+
+Text::Diff 0.32
+
+=back
+
+=head1 AUTHOR
+
+Tatsuhiko Miyagawa E<lt>miyagawa@bulknews.netE<gt>
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 SEE ALSO
+
+L<HTML::Template>, L<Text::Diff>
+
+=cut
+
+package HtdiffApp;
+use IO::File;
+use HTML::Template;
+use Text::Diff;
+
+sub new {
+    my($class, %p) = @_;
+    bless \%p, $class;
+}
+
+sub run {
+    my $self = shift;
+    if ($self->{dump}) {
+	$self->dump_structure;
+    } else {
+	my @tokens = map $self->make_tokens($_), @{$self->{files}};
+	$self->check_directives(@tokens);
+    }
+}
+
+sub dump_structure {
+    my $self = shift;
+    my $structure = $self->make_tokens($self->{dump});
+    print $structure;
+}
+
+sub make_tokens {
+    my($self, $file) = @_;
+    my $text = $self->slurp($file);
+    return $self->parse($text);
+}
+
+sub slurp {
+    my($self, $file) = @_;
+    my $io   = IO::File->new($file) or die "$file: $!";
+    local $/;
+    return <$io>;
+}
+
+sub parse {
+    my($self, $text) = @_;
+    my @chunks = split /(?=<)/, $text;
+
+    my $re = $self->regex;
+    my $doc;
+    for my $chunk (@chunks) {
+	if ($chunk =~ /$re/g) {
+	    # strip $post
+	    my $match = $&;
+	    $match =~ s/\Q$9\E$// if defined $9;
+	    $doc .= "$match\n";
+	}
+    }
+    return $doc;
+}
+
+sub check_directives {
+    my($self, @tokens) = @_;
+    my $diff = diff \$tokens[0], \$tokens[1];
+    print $diff if $diff;
+}
+
+sub regex {
+    # cut-n-pasted from HTML::Template
+    return qr/^<
+                    (?:!--\s*)?
+                    (
+                      \/?[Tt][Mm][Pp][Ll]_
+                      (?:
+                         (?:[Vv][Aa][Rr])
+                         |
+                         (?:[Ll][Oo][Oo][Pp])
+                         |
+                         (?:[Ii][Ff])
+                         |
+                         (?:[Ee][Ll][Ss][Ee])
+                         |
+                         (?:[Uu][Nn][Ll][Ee][Ss][Ss])
+                         |
+                         (?:[Ii][Nn][Cc][Ll][Uu][Dd][Ee])
+                      )
+                    ) # $1 => $which - start of the tag
+
+                    \s* 
+
+                    # ESCAPE attribute
+                    (?:
+                      [Ee][Ss][Cc][Aa][Pp][Ee]
+                      \s*=\s*
+                      (?:
+                         ( 0 | (?:"0") | (?:'0') ) # $2 => ESCAPE off
+                         |
+                         ( 1 | (?:"1") | (?:'1') | 
+                           (?:[Hh][Tt][Mm][Ll]) | 
+                           (?:"[Hh][Tt][Mm][Ll]") |
+                           (?:'[Hh][Tt][Mm][Ll]') |
+                           (?:[Uu][Rr][Ll]) | 
+                           (?:"[Uu][Rr][Ll]") |
+                           (?:'[Uu][Rr][Ll]') |
+                         )                         # $3 => ESCAPE on
+                       )
+                    )* # allow multiple ESCAPEs
+
+                    \s*
+
+	            # NAME attribute
+                    (?:
+                      (?:
+                        (?:[Nn][Aa][Mm][Ee]|[Ee][Xx][Pp][Rr]) # for H::T::Expr
+                        \s*=\s*
+                      )?
+                      (?:
+                        "([^">]*)" # $4 => double-quoted NAME value "
+                        |
+                        '([^'>]*)' # $5 => single-quoted NAME value
+                        |
+                        ([^\s=>]*)  # $6 => unquoted NAME value
+                      )
+                    )?
+                    \s*
+
+                    # ESCAPE attribute
+                    (?:
+                      [Ee][Ss][Cc][Aa][Pp][Ee]
+                      \s*=\s*
+                      (?:
+                         ( 0 | (?:"0") | (?:'0') ) # $7 => ESCAPE off
+                         |
+                         ( 1 | (?:"1") | (?:'1') |
+                           (?:[Hh][Tt][Mm][Ll]) |
+                           (?:"[Hh][Tt][Mm][Ll]") |
+                           (?:'[Hh][Tt][Mm][Ll]') |
+                           (?:[Uu][Rr][Ll]) | 
+                           (?:"[Uu][Rr][Ll]") |
+                           (?:'[Uu][Rr][Ll]') |
+                         )                         # $8 => ESCAPE on
+                       )
+                    )* # allow multiple ESCAPEs
+
+                    \s*
+
+                    (?:--)?>
+	            (.*) # $9 => $post - text that comes after the tag
+	      $/sx;
+}
+
+package main;
+
+sub usage {
+    (my $me = $0) =~ s@.*/@@;
+    warn "Usage: $me file1 file2 / $me --dump file\n";
+}
+
+@ARGV == 2 or usage(), exit;
+my $app = $ARGV[0] eq '--dump'
+    ? HtdiffApp->new(dump => $ARGV[1])
+    : HtdiffApp->new(files => \@ARGV);
+$app->run;
+

@@ -1,0 +1,76 @@
+NAME
+    Class::DBI::Extension - Some extension for Class::DBI
+
+SYNOPSIS
+      package Film;
+      use base qw(Class::DBI::Extension);
+
+      # same as Class::DBI, but we have some useful methods.
+      package main;
+
+      @film   = Film->retrieve_all;
+      @better = Film->retrieve_from_sql('WHERE rating >= ?', 5);
+      $mine   = Film->get_count_from_sql('WHERE director = ?', $me);
+
+DESCRIPTION
+    THIS RELEASE IS FOR TEMPORARY DEVELOPMENT. Hope this will eventually be
+    merged into Class::DBI and/or Class::DBI::mysql.
+
+    Patches, requests, suggestions are welcome in POOP Mailing List,
+    <poop-group@lists.sourceforge.net>
+
+METHODS
+    $hashref = $record->attributes_hashref;
+        returns hash-reference of instance attributes.
+
+    %hash = $record->attributes_hash;
+        returns hash of instance attributes.
+
+    @record = Class->retrieve_from_sql($sql, @bind_args);
+        returns array of instances via SQL WHERE clause. Following example
+        returns Movies which have higher rating than 5.
+
+          @better_ones = Film->retrieve_from_sql(q{
+              WHERE rating >= ?
+          }, 5);
+
+    @all = Class->retrieve_all;
+        returns array of all instances in the class. Caveat for memory
+        consumption.
+
+    @record = Class->retrieve_range($offset, $limit);
+        returns array of instance by offset and limit. In this example,
+        No.10-30 are returned. This method might be useful for paging.
+
+        NOTE: Implemented SQL syntax would be specific for MySQL.
+
+        CAVEAT: Sort key is hard-coded with PRIMARY KEY of the table.
+
+    $howmany = Class->get_count_from_sql($sql, $bar);
+        returns the number of instances that matches SQL WHERE clause.
+
+          $num_of_goods = Film->get_count_from_sql(q{
+              WHERE rating >= ?
+          }, 5);
+
+    $num_of_records = Class->get_count;
+        returns the number of all instances of the class.
+
+    Class->lock_table(); Class->unlock_table();
+        Without transaction support (like MyISAM), we need to lock tables in
+        some cases.
+
+          Class->lock_table();
+          Class->unlock_table();
+
+        NOTE: Implemented SQL syntax is specific for MySQL.
+
+AUTHOR
+    Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+SEE ALSO
+    the Class::DBI manpage, the Class::DBI::mysql manpage
+

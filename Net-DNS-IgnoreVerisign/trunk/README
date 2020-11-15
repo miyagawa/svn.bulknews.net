@@ -1,0 +1,28 @@
+NAME
+    Net::DNS::IgnoreVerisign - fix Net::DNS to ignore Verisign's SiteFinder
+    service
+
+SYNOPSIS
+      use Net::DNS;
+      use Net::DNS::IgnoreVerisign;
+
+      my $res = Net::DNS::Resolver->new();
+      my $ans = $res->search("domain-which-is-not-existent.com");
+
+DESCRIPTION
+    Net::DNS::IgnoreVerisign is a Net::DNS fixer to ignore Verisign
+    Sitefinder stuff. This module globally overrides Net::DNS::Resolver's
+    "query" method. So it's not a perfect solution, but it'd be enough for a
+    usual Net::DNS users in perl API layer.
+
+AUTHOR
+    Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+SEE ALSO
+    the Net::DNS manpage
+
+    http://achurch.org/bind-verisign-patch.html
+

@@ -1,0 +1,12 @@
+Changes
+lib/Encode/JP/Mobile.pm
+lib/Encode/JP/Mobile/Vodafone.pm
+Makefile.PL
+MANIFEST			This list of files
+README
+t/emoji_convert.t
+t/Mobile.t
+t/vodafone-fallback.t
+ucm/shift_jis-airedge.ucm
+ucm/shift_jis-imode.ucm
+ucm/shift_jis-kddi.ucm

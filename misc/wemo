@@ -1,0 +1,98 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use WebService::Belkin::WeMo::Discover;
+use WebService::Belkin::WeMo::Device;
+
+package Locator;
+
+my $db = "$ENV{HOME}/.wemo.db";
+
+sub reload {
+    my $class = shift;
+    unlink $db;
+    $class->find;
+}
+
+sub discover {
+    my $class = shift;
+
+    my $client = WebService::Belkin::WeMo::Discover->new;
+    my $wemos;
+    if (-e $db) {
+        $wemos = $client->load($db);
+    } else {
+        $wemos = $client->search;
+        $client->save($db);
+    }
+
+    my @wemos;
+    for my $ip (sort keys %$wemos) {
+        push @wemos, WebService::Belkin::WeMo::Device->new(ip => $ip, db => $db);
+    }
+
+    @wemos;
+}
+
+sub find {
+    my($class, $name) = @_;
+
+    my $matcher = $name ? sub { $_[0] =~ /\Q$name\E/i } : sub { 1 };
+
+    my @wemos = $class->discover;
+    for my $wemo (@wemos) {
+        return $wemo if $matcher->($wemo->getFriendlyName);
+    }
+
+    return;
+}
+
+package main;
+use Getopt::Std;
+
+my($cmd, $name) = @ARGV;
+
+my %commands = (
+    'l'      => [ \&cmd_list, 0 ],
+    'list'   => [ \&cmd_list, 0 ],
+    'r'      => [ \&cmd_reload, 0 ],
+    'reload' => [ \&cmd_reload, 0 ],
+    't'      => [ \&cmd_toggle, 1 ],
+    'toggle' => [ \&cmd_toggle, 1 ],
+    'on'     => [ \&cmd_on, 1 ],
+    'off'    => [ \&cmd_off, 1 ],
+    'status' => [ \&cmd_status, 1 ],
+    's'      => [ \&cmd_status, 1 ],
+);
+
+my $command = $commands{$cmd || ''} or die "Usage: wemo [list|reload|toggle|on|off|status] [name]\n";
+
+my($sub, $want) = @$command;
+
+if ($want) {
+    my $wemo = Locator->find($name) or die "Could not locate Wemo\n";
+    $sub->($wemo);
+} else {
+    $sub->();
+}
+
+sub cmd_list {
+    my @wemos = Locator->discover;
+    for my $wemo (@wemos) {
+        print $wemo->getFriendlyName, "\n";
+    }
+}
+
+sub cmd_reload {
+    Locator->reload;
+    cmd_list();
+}
+
+sub cmd_toggle { shift->toggleSwitch }
+sub cmd_on     { shift->on }
+sub cmd_off    { shift->off }
+
+sub cmd_status {
+    my $wemo = shift;
+    printf "%s at %s is %s\n", $wemo->getFriendlyName, $wemo->{_ip}, ($wemo->isSwitchOn ? "On" : "Off");
+}

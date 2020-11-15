@@ -1,0 +1,8 @@
+Changes
+lib/WebService/LivedoorReader.pm
+Makefile.PL
+MANIFEST			This list of files
+t/00_compile.t
+t/01_notify.t
+t/02_login.t
+t/03_listsubs.t

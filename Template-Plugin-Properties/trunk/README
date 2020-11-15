@@ -1,0 +1,25 @@
+NAME
+    Template::Plugin::Properties - TT Plugin to read Data::Properties file
+
+SYNOPSIS
+      [% USE props = Properties('/path/to/properties') %]
+      [% FOREACH key = props.names %]
+        [% key %] is [% props.get(key) %]
+      [% END %]
+
+      # get can accept default
+      name is [% props.get('name', 'name (defaut)') %]
+
+DESCRIPTION
+    Template::Plugin::Properties is a TT plugin which allows you to read
+    property variables from inside templates using Data::Properties.
+
+AUTHOR
+    Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+SEE ALSO
+    the Data::Properties manpage, the Template::Plugin::Datafile manpage
+

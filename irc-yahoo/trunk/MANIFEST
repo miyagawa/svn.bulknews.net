@@ -1,0 +1,9 @@
+Changes
+INSTALL
+MANIFEST
+Makefile.PL
+README
+irc-yahoo
+lib/Net/YahooMessenger/IRCGW.pm
+lib/Net/YahooMessenger/IRCGW/EventHandler.pm
+t/test.t

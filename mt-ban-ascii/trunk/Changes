@@ -1,0 +1,5 @@
+Changes for mt-ban-ascii plugin
+
+0.92 2005/09/30
+     - Now uses MT 3.2 JunkFilter API and supports Trackbacks
+       (Thanks to Brad Choate)

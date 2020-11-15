@@ -1,0 +1,59 @@
+mod_log_sqlite - Apache logging module to sqlite
+
+INSTALL:
+
+You can install this module easily via apxs magic.
+
+  % make
+  # make install
+  % make clean
+
+CONFIGURATION (summary):
+
+1. install sqlite from http://www.hwaci.com/sw/sqlite/
+2. Add following lines to your httpd.conf
+
+    LogSQLiteDBFile sqlite-logs/sqlite_log
+    LogSQLiteAutoChown On 
+
+CONFIGURATION (details):
+
+First you should install sqlite module manually. See
+http://www.hwaci.com/sw/sqlite/ for details.
+
+Then you should initialize access_log database (from 0.05, this is
+optional). Note that the database file and the directory should be
+writable by httpd running user ("nobody" by default).
+
+  # mkdir /usr/local/apache/sqlite-logs
+  # chown nobody:nobody /usr/local/apache/sqlite-logs
+  % sudo -u nobody sqlite /usr/local/apache/sqlite-logs/sqlite_log < create_table.sql
+
+"create_table.sql" is bundled with this module. Note that this module
+automatically creates log table if there's not one, from 0.05. You can
+let this moule do chown() automatically, by adding directive:
+
+  LogSQLiteAutoChown On
+
+Finally, simply add the following line to your httpd.conf:
+
+  LogSQLiteDBFile sqlite-logs/sqlite_log
+
+Table name is "access_log" by default. You can change it via
+"LogSQLiteTable" directive if you want to.
+
+  LogSQLiteTable wwwlog
+
+From 0.05, this module supports separate database files per
+VirtualHosts, which means you can even do:
+
+  <VirtualHost x.x.x.x>
+  ServerName vh.example.com
+  LogSQLiteDBFile /home/vh.example.com/logs/sqlite_log
+  </VirtualHost>
+
+That's all! Enjoy querying your access_log via VIEWs and/or sub-querys.
+
+--
+Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+IKEBE Tomohiro     <ikechin@0xfa.com>

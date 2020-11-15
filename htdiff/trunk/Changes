@@ -1,0 +1,12 @@
+Revision history for Perl extension htdiff
+
+0.03  Thu Apr 25 20:24:37 JST 2002
+	* Add --dump option
+
+0.02  Thu Apr 25 18:09:38 JST 2002
+	- fix parser bug in $post handling
+	  (Thanks to Takefumi Kimura <takefumi@takefumi.com>
+	* Added HTML::Template::Expr support
+
+0.01  Wed Apr 24 20:43:32 2002
+	- original version

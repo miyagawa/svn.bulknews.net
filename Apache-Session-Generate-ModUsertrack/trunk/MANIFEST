@@ -1,0 +1,9 @@
+Apache-Session-Flex-1.00.patch
+Changes
+MANIFEST
+Makefile.PL
+README
+lib/Apache/Session/Generate/ModUsertrack.pm
+t/00_load.t
+t/01_generate.t
+t/02_validate.t

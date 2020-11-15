@@ -1,0 +1,68 @@
+Revision history for Perl extension Catalyst::View::JSON
+
+0.17  Wed Apr 25 16:04:44 PDT 2007
+        - Switch to Module::Install
+        - include JSON.pm in inc/ for testing.
+          (Thanks to Matt S Trout)
+
+0.16  Tue Apr 17 20:11:38 PDT 2007
+        - Added JSON::Any dependency
+
+0.15  Fri Apr 13 19:25:04 PDT 2007
+        - Switch to use JSON::Any to abstract JSON drivers imlementations
+          (Thanks to Florian Ragwitz for the patch)
+
+0.14  Wed Dec 20 17:20:26 PST 2006
+        - Oops, no_x_json_header in 0.13 was broken
+
+0.13  Wed Dec 20 17:12:32 PST 2006
+        - Added UTF-8 BOM if the User-Agent is Safari and encoding is utf-8 (Jun Kuriyama)
+        - Added 'no_x_json_header' option to disable auto-setting X-JSON for Prototype.js
+          (Jun Kuriyama)
+        - Documented json_driver config
+
+0.12  Thu Oct 26 17:37:58 JST 2006
+        - Support X-JSON for Prototype.js (John Wang)
+        - Updated interoperability doc (John Wang)
+
+0.11  Mon Jul 31 16:21:14 JST 2006
+        - Fix validator so 'json_driver' should just work (Thanks to typester)
+
+0.10  Sun Jul 30 23:46:43 JST 2006
+        - Updated document (Thanks to John Wang)
+        - Switch Content-Type to application/json the standard other than Opera
+        - Mention Encode::UCS::JavaScript in POD
+
+0.09  Thu Apr 20 22:16:19 JST 2006
+        - Added Helper class (Thanks to Komatsu)
+
+0.08  Tue Jan 10 13:31:39 UTC 2006
+        - Added Opera hack (Content-Type: applcation/x-javascript)
+          (Thanks to kazeburo)
+
+0.07  Tue Jan 10 13:00:19 UTC 2006
+        - Now able to use JSON::Syck as a converter by passing
+          json_driver as 'JSON::Syck'
+
+0.06  Tue Jan 10 09:04:34 UTC 2006
+        - Oops, 0.05 was broken. Fixed encode() problem and added test
+          cases for them.
+
+0.05  Tue Jan 10 08:51:02 UTC 2006
+        - Added encoding option (default utf-8) to tackle with Safari
+          multibytes problem. Content-Type is now text/javascript (no +json)
+          (Thanks to kazeburo)
+
+0.04  Sun Jan  8 17:06:56 UTC 2006
+        - Added scalar support to expose_hash and updated the
+          document.
+
+0.03  Sun Jan  8 16:36:36 UTC 2006
+        - Added sanitization of callback function names to avoid XSS
+          thingy.
+
+0.02  Wed Jan  4 10:41:28 UTC 2006
+        - Include the tests file on distribution
+
+0.01  Wed Jan  4 09:27:33 2006
+	- original version

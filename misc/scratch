@@ -1,0 +1,4 @@
+#!/bin/bash
+TEMPDIR=`mktemp -d /tmp/XXXXXXXXX`
+cd $TEMPDIR
+$SHELL    

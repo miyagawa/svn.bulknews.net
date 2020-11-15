@@ -1,0 +1,61 @@
+NAME
+    original - MixJuice in Perl
+
+SYNOPSIS
+      package Animal;
+      sub new {
+          my($class, $hashref) = @_;
+          bless {%$hashref}, $class;
+      }
+
+      package Animal::Speak;
+      use original 'Animal';
+
+      sub speak {
+          my $self = shift;
+          return "My name is $self->{name}";
+      }
+
+      package Animal::Dog;
+      use original 'Animal';
+
+      sub bark {
+          return 'bow wow';
+      }
+
+      sub speak {
+          my $self = shift;
+          if ($self->{name} eq 'Snoopy') {
+              return "Snoopy is $self->{name}";
+          }
+          $self->ORIGINAL::speak(@_);
+          # or $self->original(@_);
+      }
+
+      # Then, in a main script!
+      use Animal;
+      use Animal::Speak;
+
+      my $spot = Animal->new({ name => 'Spot' });
+      print $spot->speak;  # 'My name is Spot';
+
+      use Animal::Dog;
+      my $snoopy = Animal->new({ name => 'Snoopy' });
+      print $snoopy->bark;  # 'bow wow';
+      print $snoopy->speak; # 'Snoopy is Snoopy';
+
+DESCRIPTION
+    original.pm is a proof-of-concept implemetation of MixJuice, in Perl.
+    See http://staff.aist.go.jp/y-ichisugi/mj/ for details :)
+
+AUTHOR
+    Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+SEE ALSO
+    http://www.ogis-ri.co.jp/otc/hiroba/technical/MixJuice/, the NEXT
+    manpage, the Exporter::Lite manpage, the Class::Virtually::Abstract
+    manpage
+

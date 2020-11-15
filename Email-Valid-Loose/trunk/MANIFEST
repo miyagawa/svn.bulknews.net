@@ -1,0 +1,7 @@
+Changes
+lib/Email/Valid/Loose.pm
+Makefile.PL
+MANIFEST
+README
+t/00_compile.t
+t/01_loose.t

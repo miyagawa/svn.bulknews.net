@@ -1,0 +1,7 @@
+Revision history for Perl extension original
+
+0.02  Thu Feb  7 08:07:58 JST 2002
+	- use Devel::Symdump to find methods
+
+0.01  Fri Jan 11 01:07:38 2002
+	- original version

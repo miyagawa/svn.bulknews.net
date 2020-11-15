@@ -1,0 +1,8 @@
+Changes
+MANIFEST
+Makefile.PL
+lib/CGI/BufferedHeader.pm
+t/00_compile.t
+t/01_add.t
+t/02_headerout.t
+t/03_param.t

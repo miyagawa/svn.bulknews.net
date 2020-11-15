@@ -1,0 +1,26 @@
+NAME
+    Mail::Address::Classify::mobile_jp - classificatin for mobile mail in
+    Japan
+
+SYNOPSIS
+      use Mail::Address::Classify;
+
+      my $addr = Mail::Address::Classify->new('fooooooo@docomo.ne.jp')
+      if ($addr->belongs('mobile_jp')) { }
+
+DESCRIPTION
+    Mail::Address::Classify::mobile_jp is a plugin module for
+    Mail::Address::Classify, which validates whether an address belongs to
+    mobile mail address in Japan or not.
+
+    This module should be updated heavily :)
+
+AUTHOR
+    Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+SEE ALSO
+    the Mail::Address::Classify manpage, http://www.mag2.com/faq/mobile.htm
+

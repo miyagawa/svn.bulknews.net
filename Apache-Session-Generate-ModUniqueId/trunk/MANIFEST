@@ -1,0 +1,8 @@
+Apache-Session-Flex-1.00.patch
+Changes
+MANIFEST
+Makefile.PL
+README
+lib/Apache/Session/Generate/ModUniqueId.pm
+t/00_load.t
+t/01_generate.t

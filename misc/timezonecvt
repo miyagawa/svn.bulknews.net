@@ -1,0 +1,47 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use DateTime;
+use DateTime::TimeZone;
+use Date::Manip;
+use Getopt::Long;
+use Pod::Usage;
+
+my $from = "America/Los_Angeles";
+my $to   = "Asia/Tokyo";
+
+GetOptions('--from=s', \$from, '--to=s' => \$to);
+Getopt::Long::Configure("bundling");
+
+my $date = join ' ', @ARGV or pod2usage(1);
+my @date = localtime(UnixDate(ParseDateString($date), "%s"));
+
+my $dt = DateTime->new(
+    second => $date[0],
+    minute => $date[1],
+    hour   => $date[2],
+    day    => $date[3],
+    month  => $date[4] + 1,
+    year   => $date[5] + 1900,
+    time_zone => $from,
+);
+
+my $to_date = $dt->clone;
+$to_date->set_time_zone($to);
+
+for my $date ($dt, $to_date) {
+    print $date->strftime("%Y/%m/%d (%a) %H:%M:%S "), $date->time_zone->name, ($date->is_dst ? '*' : ''), "\n";
+}
+
+__END__
+
+=head1 NAME
+
+timezonecvt - Convert timezone for given datetime
+
+=head1 SYNOPSIS
+
+  timezonecvt 9/12 13:45
+  timezonecvt -f Asia/Tokyo -t America/New_York tomorrow 3pm
+
+=cut

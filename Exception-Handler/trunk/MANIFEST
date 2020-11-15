@@ -1,0 +1,10 @@
+Changes
+MANIFEST
+Makefile.PL
+lib/Exception/Handler.pm
+t/00_compile.t
+t/01_handler.t
+t/02_class.t
+t/03_error.t
+t/04_hierarchy.t
+t/05_no_default.t

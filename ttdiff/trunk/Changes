@@ -1,0 +1,7 @@
+Revision history for Perl extension ttdiff
+
+0.02  Thu Apr 25 20:24:37 JST 2002
+	* Add --dump option
+
+0.01  Wed Apr 24 20:43:32 2002
+	- original version

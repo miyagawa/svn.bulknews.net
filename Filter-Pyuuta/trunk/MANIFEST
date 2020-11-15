@@ -1,0 +1,7 @@
+Changes
+MANIFEST
+Makefile.PL
+lib/Filter/Pyuuta.pm
+t/00_pyuuta.t
+t/01_syntax.t
+t/syntax.pl

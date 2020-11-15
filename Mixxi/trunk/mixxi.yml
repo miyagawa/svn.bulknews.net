@@ -1,0 +1,12 @@
+---
+name: Mixxi
+tinyurl_base: http://mixxi.jp/
+default_view: TT
+View::TT:
+  TEMPLATE_EXTENSION: .tt
+View::JSON:
+  json_driver: JSON::Syck
+  expose_stash: json_data
+View::QRcode:
+  module_size: 3
+

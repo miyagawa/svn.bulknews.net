@@ -1,0 +1,8 @@
+Revision history for Perl extension Inline::TT
+
+0.02  Thu Aug 22 19:17:36 JST 2002
+	- Turned POST_CHOMP off
+	  (Thanks to Mark Fowler <mark@twoshortplanks.com>)
+
+0.01  Fri Apr 26 03:47:25 2002
+	- original version

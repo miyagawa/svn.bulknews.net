@@ -1,0 +1,41 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<style>
+body,td,th {
+font-size: 13px
+}
+td { width: 300px }
+</style>
+
+  <table width="900">
+  <tr><th>Auditorium</th>
+  <th>DeNA Room</th>
+  <th>ArcheType Room</th>
+  </tr>
+  [% events = current_events('2008-05-17 09:00:02') %]
+  [% FOREACH period = events.keys.sort %]
+  <tr>
+  [% FOREACH room = events.$period.keys.sort;
+     event = events.$period.$room %]
+  [% IF room == 'Venue' %]
+  <td colspan="3" style="text-align:center">
+  [% date_format(event.datetime, 'time') %]
+  <b>[% event.title | html %]</b>
+  <i>([% event.duration %] {{min}})</i>
+  </td>
+  [% ELSE %]
+  <td width="300">[% date_format(event.datetime, 'time') %]
+  <b>[% event.title | html %]</b><br/>
+  [% IF event.user %]
+  [% user_info_base(event.user) %]
+  [% END %]
+  [% IF global.config.talks_languages %]
+  - [% global.config.talks_languages.${event.lang} %]
+  [% END %]
+  <i>([% event.duration %] {{min}})</i>
+  </td>
+  [% END %]
+  [% END # FOREACH room %]
+  </tr>
+  [% END # FOREACH period %]
+  </table>
+ 

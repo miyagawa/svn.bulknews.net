@@ -1,0 +1,28 @@
+NAME
+    Locale::Maketext::Lexicon::Properties - Maketext plugin for
+    Data::Properties
+
+SYNOPSIS
+      package Foo::L10N;
+      use Locale::Maketext::Lexicon {
+          en => [ 'Properties', 'properties.en' ],
+      };
+
+      package main;
+      my $lh = Foo::L10N->get_handle('en');
+      print $lh->maketext("email.invalid");
+
+DESCRIPTION
+    Locale::Maketext::Lexicon::Properties is a plugin for
+    Locale::Maketext::Lexicon which parses "java.util.Properties" file using
+    Data::Properties.
+
+AUTHOR
+    Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+SEE ALSO
+    the Locale::Maketext::Lexicon manpage, the Data::Properties manpage
+
